@@ -1,0 +1,17 @@
+[Unit]
+Description = Suggest News Bot
+After = network.target
+
+[Service]
+Type = simple
+WorkingDirectory = /var/www/Suggest_news_bot/
+ExecStart = /usr/bin/python3.8 main.py
+User = root
+Restart = on-failure
+SyslogIdentifier = /var/log/Suggest_news_bot.log
+RestartSec = 5
+TimeoutStartSec = infinity
+MemoryMax=200M
+
+[Install]
+WantedBy = multi-user.target
