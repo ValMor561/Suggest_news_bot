@@ -127,10 +127,10 @@ async def exit(callback_query: types.CallbackQuery, state: FSMContext):
 async def cmd_create_news(callback_query: types.CallbackQuery, state: FSMContext):
     await state.set_state(states.CreateNews.text)
     builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(text='Вперед', callback_data='Вперед'), types.InlineKeyboardButton(text='Назад', callback_data='Назад'))
+    builder.add(types.InlineKeyboardButton(text='Пропустить', callback_data='Вперед'), types.InlineKeyboardButton(text='Назад', callback_data='Назад'))
     builder.adjust(1) 
     keyboard = builder.as_markup(resize_keyboard=True)
-    await callback_query.message.answer("Введите текст своего объявления\.", reply_markup=keyboard)
+    await callback_query.message.answer('Введите текст своего объявления\. Если хотите оставить его пустым нажмите "Пропустить"', reply_markup=keyboard)
 
 #Экранирование специальных символов
 def escape_markdown(text):
@@ -144,6 +144,12 @@ def escape_markdown(text):
 async def get_text(msg: Message, state: FSMContext):
     text = escape_markdown(msg.text)
     await state.update_data(text=text)
+    await state.set_state(states.CreateNews.images)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(text='Вперед', callback_data='Вперед'), types.InlineKeyboardButton(text='Назад', callback_data='Назад'))
+    builder.adjust(1) 
+    keyboard = builder.as_markup(resize_keyboard=True)
+    await msg.answer('Прикрепите одно или несколько фото, либо нажмите "Вперед" чтобы пропустить этот шаг\.', reply_markup=keyboard)
 
 #Обработка кнопки Вперед
 @router.callback_query(states.CreateNews.text)
@@ -193,8 +199,11 @@ async def get_next(callback_query: types.CallbackQuery, state: FSMContext):
         await callback_query.message.answer_media_group(media=media_group.build())
     #Если нет ни фото ни текста
     elif text == "":
-        await callback_query.message.answer("Должен быть заполнен хотя бы один пункт")
-        await exit(callback_query, state)
+        await state.clear()
+        builder = InlineKeyboardBuilder()
+        builder.add(types.InlineKeyboardButton(text="🏠 Вернуться на главный экран" , callback_data=f"Назад"))
+        keyboard = builder.as_markup(resize_keyboard=True)
+        await callback_query.message.answer("Должен быть заполнен хотя бы один пункт", reply_markup=keyboard)
         return
     #Если только текст
     else:
@@ -246,6 +255,9 @@ async def get_result(callback_query: types.CallbackQuery, state: FSMContext):
     
     #Ответ пользователю и выход на главный экран
     await state.clear()
-    await callback_query.message.answer('Скоро ваше объявление будут опубликовано в канале\.')
-    await main_menu(callback_query)
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(text="🏠 Вернуться на главный экран" , callback_data=f"Назад"))
+    keyboard = builder.as_markup(resize_keyboard=True)
+    await callback_query.message.answer('Скоро ваше объявление будут опубликовано в канале\.', reply_markup=keyboard)
+
 
