@@ -5,15 +5,15 @@ from aiogram.enums.parse_mode import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder 
+from aiogram.utils.media_group import MediaGroupBuilder
+from aiogram.fsm.strategy import FSMStrategy
 import config
 import states
-from aiogram.exceptions import TelegramRetryAfter, TelegramBadRequest, TelegramForbiddenError
-from aiogram.utils.media_group import MediaGroupBuilder
-from datetime import datetime, timedelta
-from bd import BDRequests
 import os
 import sys
-from aiogram.fsm.strategy import FSMStrategy
+from bd import BDRequests
+
+
 
 bot = Bot(token=config.BOT_TOKEN, parse_mode=ParseMode.MARKDOWN_V2)
 dp = Dispatcher(storage=MemoryStorage(), fsm_strategy=FSMStrategy.CHAT)
